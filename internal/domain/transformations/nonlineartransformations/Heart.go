@@ -1,4 +1,4 @@
-package nonlinear_transformamtions
+package nonlineartransformations
 
 import "math"
 
@@ -15,5 +15,6 @@ func (t Heart) Transform(x, y float64) (newX, newY float64) {
 	newX *= t.ScaleX
 	newY *= t.ScaleY
 	newY -= t.ShiftUpY
+
 	return newX, newY
 }

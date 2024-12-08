@@ -1,4 +1,4 @@
-package nonlinear_transformamtions
+package nonlineartransformations
 
 import "math"
 

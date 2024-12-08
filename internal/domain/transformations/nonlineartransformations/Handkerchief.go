@@ -1,4 +1,4 @@
-package nonlinear_transformamtions
+package nonlineartransformations
 
 import "math"
 
@@ -10,5 +10,6 @@ func (Handkerchief) Transform(x, y float64) (newX, newY float64) {
 	aTan := math.Atan(x / y)
 	newX = r * math.Sin(aTan+r)
 	newY = r * math.Cos(aTan-r)
+
 	return newX, newY
 }
