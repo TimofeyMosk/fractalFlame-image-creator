@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
+	"time"
 )
 
 // NonLinearTransformConfig описывает нелинейное преобразование и вероятность его срабатывания.
@@ -23,8 +24,9 @@ type Config struct {
 	LogarithmicGamma          bool   // Логарифмическая гамма-коррекция
 	Gamma                     float64
 	ThreadCount               int                        // Количество потоков
-	CoefStretchingCompression int                        // коэффициент растяжения (и последующего сжатия) изображения
+	StretchingCompressionCoef int                        // Коэффициент растяжения (и последующего сжатия) изображения
 	NonLinearTransforms       []NonLinearTransformConfig // Нелинейные преобразования с вероятностями
+	Filename                  string
 }
 
 // ParseFlags парсит флаги из командной строки и возвращает Config.
@@ -40,6 +42,7 @@ func ParseFlags() (*Config, error) {
 	logGamma := flag.Bool("log-gamma", false, "Включить логарифмическую гамма-коррекцию")
 	threadCount := flag.Int("threads", runtime.NumCPU(), "Количество потоков (по умолчанию все доступные)")
 	StretchingCompressionCoef := flag.Int("scc", 1, "Коэффициент расстяжения и последующего сжатия изображения(убирает шумы)")
+	filename := flag.String("filename", strings.Join([]string{"fractal_image", time.Now().Format("D_02_01_2006_T_15_04_05")}, "_"), "Название файла при сохранении")
 	// Список нелинейных преобразований
 	nonLinearTransforms := flag.String("nonlinear-transforms",
 		"",
@@ -75,6 +78,10 @@ func ParseFlags() (*Config, error) {
 		*threadCount = runtime.NumCPU()
 	}
 
+	if *filename == "" {
+		return nil, fmt.Errorf("параметр -filename не должен быть пуст")
+	}
+	*filename += ".png"
 	// Парсинг нелинейных преобразований
 	var transforms []NonLinearTransformConfig
 
@@ -107,7 +114,8 @@ func ParseFlags() (*Config, error) {
 		ThreadCount:               *threadCount,
 		NonLinearTransforms:       transforms,
 		Gamma:                     gamma,
-		CoefStretchingCompression: *StretchingCompressionCoef,
+		StretchingCompressionCoef: *StretchingCompressionCoef,
+		Filename:                  *filename,
 	}, nil
 }
 
@@ -115,5 +123,6 @@ func ParseFlags() (*Config, error) {
 func parseFloat(value string) (float64, error) {
 	var f float64
 	_, err := fmt.Sscanf(value, "%f", &f)
+
 	return f, err
 }

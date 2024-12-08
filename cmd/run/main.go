@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/application"
@@ -14,9 +13,10 @@ func main() {
 
 	cfg, err := application.ParseFlags()
 	if err != nil {
-		log.Fatalf("Ошибка парсинга флагов: %v", err)
+		fmt.Errorf("Ошибка парсинга флагов: %w", err)
 		return
 	}
+
 	fmt.Printf("Конфигурация: %+v\n", cfg)
 
 	//cfg := &application.Config{
@@ -33,15 +33,16 @@ func main() {
 	//		{Name: "spherical", Probability: 0.3},
 	//		{Name: "disk", Probability: 0.3}},
 	//	Gamma:                     1.5,
-	//	CoefStretchingCompression: 3,
+	//	StretchingCompressionCoef: 3,
 	//}
 
 	fractalGenerator := application.NewFractalFlameImageGenerator(cfg)
 	fractalImage := fractalGenerator.Start()
 
-	err = infrastructure.SaveImage("fractal.png", fractalImage)
+	err = infrastructure.SaveImage(cfg.Filename, fractalImage)
 	if err != nil {
-
+		fmt.Errorf("Don`t save fractal.png: %v", err)
+		return
 	}
 
 	fmt.Println(time.Since(startApplication).Seconds())
@@ -49,3 +50,4 @@ func main() {
 
 // GenerateBrightColor генерирует яркий цвет
 // ./main -height=1080 -width=1920 -iterations=10000000 -linear-transform-count=10 -symmetry -log-gamma -threads=8 -nonlinear-transforms="Sinusoidal:0.2,Polar:0.3,Spherical:0.4"
+//./main -height=1080 -width=1920 -iter=500000000 -linear-transform-count=10 -symmetry -threads 8  -log-gamma -nonlinear-transforms="sinusoidal:0.1,polar:0.1,disk:0.4,Handkerchief: 0.4" -scc 5

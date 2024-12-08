@@ -39,12 +39,12 @@ type FractalFlameImageGenerator struct {
 
 func NewFractalFlameImageGenerator(cfg *Config) *FractalFlameImageGenerator {
 	return &FractalFlameImageGenerator{
-		fractal:                   domain.NewFractalImage(cfg.Height*cfg.CoefStretchingCompression, cfg.Width*cfg.CoefStretchingCompression),
+		fractal:                   domain.NewFractalImage(cfg.Height*cfg.StretchingCompressionCoef, cfg.Width*cfg.StretchingCompressionCoef),
 		LinTransf:                 initLinTransform(cfg.LinearTransformCount),
 		NoLinTransf:               initNoLinTransoformation(cfg.NonLinearTransforms, cfg.Height, cfg.Width),
 		Iteration:                 cfg.Iterations,
 		gamma:                     cfg.Gamma,
-		coefStretchingCompression: cfg.CoefStretchingCompression,
+		coefStretchingCompression: cfg.StretchingCompressionCoef,
 		threadCount:               cfg.ThreadCount,
 		symmetry:                  cfg.Symmetry,
 		logGammaCorrection:        cfg.LogarithmicGamma,
@@ -60,14 +60,20 @@ func (f *FractalFlameImageGenerator) Start() *domain.FractalImage {
 		wg.Add(1)
 
 		go func() {
-			Render(f.fractal, f.LinTransf, f.NoLinTransf, iterationsByGorutine)
+			Render(f, iterationsByGorutine)
 			wg.Done()
 		}()
 	}
 
 	wg.Wait()
-	LogGammaCorrection(f.fractal, f.gamma)
-	*f.fractal = CompressionFractalImage(f.coefStretchingCompression, f.fractal)
+
+	if f.logGammaCorrection {
+		LogGammaCorrection(f.fractal, f.gamma)
+	}
+
+	if f.coefStretchingCompression > 1 {
+		f.fractal = CompressionFractalImage(f.coefStretchingCompression, f.fractal)
+	}
 
 	return f.fractal
 }

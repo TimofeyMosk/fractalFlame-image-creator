@@ -26,13 +26,13 @@ func LogGammaCorrection(img *domain.FractalImage, gamma float64) {
 		for j := 0; j < img.GetWidth(); j++ {
 			img.Img[i][j].Normal /= maximum
 
-			a, b, c := float64(img.Img[i][j].Color.R)*math.Pow(img.Img[i][j].Normal, 1.0/gamma),
+			r, g, b := float64(img.Img[i][j].Color.R)*math.Pow(img.Img[i][j].Normal, 1.0/gamma),
 				float64(img.Img[i][j].Color.G)*math.Pow(img.Img[i][j].Normal, 1.0/gamma),
 				float64(img.Img[i][j].Color.B)*math.Pow(img.Img[i][j].Normal, 1.0/gamma)
 
-			img.Img[i][j].Color.R = uint8(a)
-			img.Img[i][j].Color.G = uint8(b)
-			img.Img[i][j].Color.B = uint8(c)
+			img.Img[i][j].Color.R = uint8(r)
+			img.Img[i][j].Color.G = uint8(g)
+			img.Img[i][j].Color.B = uint8(b)
 		}
 	}
 }
