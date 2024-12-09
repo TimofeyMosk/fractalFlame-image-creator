@@ -27,9 +27,9 @@ type NonLinTransWithProbability struct {
 
 type FractalFlameImageGenerator struct {
 	fractal                   *domain.FractalImage
-	LinTransf                 []LinearTransformation
-	NoLinTransf               []NonLinTransWithProbability
-	Iteration                 uint64
+	linTransf                 []LinearTransformation
+	noLinTransf               []NonLinTransWithProbability
+	iteration                 uint64
 	logGammaCorrection        bool
 	symmetry                  bool
 	gamma                     float64
@@ -40,9 +40,9 @@ type FractalFlameImageGenerator struct {
 func NewFractalFlameImageGenerator(cfg *Config) *FractalFlameImageGenerator {
 	return &FractalFlameImageGenerator{
 		fractal:                   domain.NewFractalImage(cfg.Height*cfg.StretchingCompressionCoef, cfg.Width*cfg.StretchingCompressionCoef),
-		LinTransf:                 initLinTransform(cfg.LinearTransformCount),
-		NoLinTransf:               initNoLinTransoformation(cfg.NonLinearTransforms, cfg.Height, cfg.Width),
-		Iteration:                 cfg.Iterations,
+		linTransf:                 initLinTransform(cfg.LinearTransformCount),
+		noLinTransf:               initNoLinTransoformation(cfg.NonLinearTransforms, cfg.Height, cfg.Width),
+		iteration:                 cfg.Iterations,
 		gamma:                     cfg.Gamma,
 		coefStretchingCompression: cfg.StretchingCompressionCoef,
 		threadCount:               cfg.ThreadCount,
@@ -53,7 +53,7 @@ func NewFractalFlameImageGenerator(cfg *Config) *FractalFlameImageGenerator {
 
 func (f *FractalFlameImageGenerator) Start() *domain.FractalImage {
 	runtime.GOMAXPROCS(f.threadCount)
-	iterationsByGorutine := f.Iteration / uint64(f.threadCount)
+	iterationsByGorutine := f.iteration / uint64(f.threadCount)
 
 	wg := &sync.WaitGroup{}
 	for i := 0; i < f.threadCount; i++ {

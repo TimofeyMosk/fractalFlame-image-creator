@@ -1,9 +1,10 @@
 package application
 
 import (
-	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/domain"
 	rand2 "math/rand"
 	"math/rand/v2"
+
+	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/domain"
 )
 
 func Render(ffg *FractalFlameImageGenerator, iterations uint64) {
@@ -12,10 +13,15 @@ func Render(ffg *FractalFlameImageGenerator, iterations uint64) {
 
 	var i uint64
 	for i = 0; i < iterations; i++ {
-		linT := ffg.LinTransf[rand.IntN(len(ffg.LinTransf))]
+		linT := ffg.linTransf[rand.IntN(len(ffg.linTransf))]
 		newX, newY := linT.Transform(x, y)
-		trans := choiceTransform(ffg.NoLinTransf)
-		x, y = trans.Transform(newX, newY)
+		trans := choiceTransform(ffg.noLinTransf)
+
+		if trans != nil {
+			x, y = trans.Transform(newX, newY)
+		} else {
+			x, y = newX, newY
+		}
 
 		if ffg.symmetry {
 			if rand2.Int()%2 == 0 {
@@ -82,6 +88,9 @@ func initScreenRatio(image *domain.FractalImage) (xMax, xMin, yMax, yMin float64
 }
 
 func choiceTransform(arrTr []NonLinTransWithProbability) NonLinearTransoformation {
+	if len(arrTr) == 0 {
+		return nil
+	}
 	p := rand.Float64()
 	ch := 0
 

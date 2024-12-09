@@ -3,6 +3,7 @@ package application
 import (
 	"flag"
 	"fmt"
+	"math/rand/v2"
 	"runtime"
 	"strings"
 	"time"
@@ -42,7 +43,7 @@ func ParseFlags() (*Config, error) {
 	logGamma := flag.Bool("log-gamma", false, "Включить логарифмическую гамма-коррекцию")
 	threadCount := flag.Int("threads", runtime.NumCPU(), "Количество потоков (по умолчанию все доступные)")
 	StretchingCompressionCoef := flag.Int("scc", 1, "Коэффициент расстяжения и последующего сжатия изображения(убирает шумы)")
-	filename := flag.String("filename", strings.Join([]string{"fractal_image", time.Now().Format("D_02_01_2006_T_15_04_05")}, "_"), "Название файла при сохранении")
+	filename := flag.String("filename", "fractal_image"+"_"+time.Now().Format("D_02_01_2006_T_15_04_05.png"), "Название файла при сохранении")
 	// Список нелинейных преобразований
 	nonLinearTransforms := flag.String("nonlinear-transforms",
 		"",
@@ -81,7 +82,7 @@ func ParseFlags() (*Config, error) {
 	if *filename == "" {
 		return nil, fmt.Errorf("параметр -filename не должен быть пуст")
 	}
-	*filename += ".png"
+
 	// Парсинг нелинейных преобразований
 	var transforms []NonLinearTransformConfig
 
@@ -102,6 +103,29 @@ func ParseFlags() (*Config, error) {
 				Probability: probability,
 			})
 		}
+	} else {
+		nameTransforms := []string{"disk", "handkerchief", "heart",
+			"horseshoe", "polar", "sinusoidal", "spherical", "swirl"}
+		rand.Shuffle(len(nameTransforms), func(i, j int) {
+			nameTransforms[i], nameTransforms[j] = nameTransforms[j], nameTransforms[i]
+		})
+		countTr := 3
+		// Генерация случайных вероятностей, сумма которых равна 1
+		probabilities := make([]float64, countTr)
+		total := 1.0
+		for i := 0; i < 2; i++ {
+			probabilities[i] = rand.Float64() * total
+			total -= probabilities[i]
+		}
+		probabilities[2] = total
+
+		for i, _ := range nameTransforms {
+			transforms = append(transforms, NonLinearTransformConfig{
+				Name:        nameTransforms[i],
+				Probability: probabilities[i],
+			})
+		}
+
 	}
 
 	return &Config{
