@@ -1,9 +1,10 @@
 package application_test
 
 import (
-	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/application"
 	"strconv"
 	"testing"
+
+	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/application"
 )
 
 // Бенчмарк для FractalFlameImageGenerator с разным количеством горутин.
@@ -14,11 +15,11 @@ func BenchmarkFractalFlameImageGenerator_Start(b *testing.B) {
 		Width:                1920,
 		LinearTransformCount: 10,
 		NonLinearTransforms:  []application.NonLinearTransformConfig{
-			//{Name: "sinusoidal", Probability: 0.2},
-			//{Name: "polar", Probability: 0.1},
-			//{Name: "spherical", Probability: 0.2},
-			//{Name: "disk", Probability: 0.1},
-			//{Name: "heart", Probability: 0.4},
+			// {Name: "sinusoidal", Probability: 0.2},
+			// {Name: "polar", Probability: 0.1},
+			// {Name: "spherical", Probability: 0.2},
+			// {Name: "disk", Probability: 0.1},
+			// {Name: "heart", Probability: 0.4},
 		},
 		Iterations:                500000,
 		Gamma:                     2.2,

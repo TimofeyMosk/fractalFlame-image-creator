@@ -104,7 +104,7 @@ func validAffine(t *lineartransformation.Affine) bool {
 	if (t.A*t.A+t.D*t.D < 1) && (t.B*t.B+t.E*t.E < 1) &&
 		(t.A*t.A+t.B*t.B+t.D*t.D+t.E*t.E < 1+(t.A*t.E-t.B*t.D)*(t.A*t.E-t.B*t.D)) {
 		return true
-	} else {
-		return false
 	}
+
+	return false
 }

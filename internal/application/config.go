@@ -50,7 +50,6 @@ func ParseFlags() (*Config, error) {
 
 	flag.Parse()
 
-	// Проверка обязательных параметров
 	if *height <= 0 {
 		return nil, fmt.Errorf("параметр -height обязателен и должен быть больше 0")
 	}
@@ -81,7 +80,38 @@ func ParseFlags() (*Config, error) {
 		return nil, fmt.Errorf("параметр -filename не должен быть пуст")
 	}
 
-	// Парсинг нелинейных преобразований
+	if *StretchingCompressionCoef != 1 && *StretchingCompressionCoef > 100 {
+		return nil, fmt.Errorf("параметр -scc слишком велик, уменьшите его")
+	}
+
+	transforms, err := ParseNonLinearTransformations(nonLinearTransforms)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Config{
+		Height:                    *height,
+		Width:                     *width,
+		Iterations:                *iterations,
+		LinearTransformCount:      *linearTransformCount,
+		Symmetry:                  *symmetry,
+		LogarithmicGamma:          *logGamma,
+		ThreadCount:               *threadCount,
+		NonLinearTransforms:       transforms,
+		Gamma:                     gamma,
+		StretchingCompressionCoef: *StretchingCompressionCoef,
+		Filename:                  *filename,
+	}, nil
+}
+
+func parseFloat(value string) (float64, error) {
+	var f float64
+	_, err := fmt.Sscanf(value, "%f", &f)
+
+	return f, err
+}
+
+func ParseNonLinearTransformations(nonLinearTransforms *string) ([]NonLinearTransformConfig, error) {
 	var transforms []NonLinearTransformConfig
 
 	if *nonLinearTransforms != "" {
@@ -129,25 +159,5 @@ func ParseFlags() (*Config, error) {
 		}
 	}
 
-	return &Config{
-		Height:                    *height,
-		Width:                     *width,
-		Iterations:                *iterations,
-		LinearTransformCount:      *linearTransformCount,
-		Symmetry:                  *symmetry,
-		LogarithmicGamma:          *logGamma,
-		ThreadCount:               *threadCount,
-		NonLinearTransforms:       transforms,
-		Gamma:                     gamma,
-		StretchingCompressionCoef: *StretchingCompressionCoef,
-		Filename:                  *filename,
-	}, nil
-}
-
-// parseFloat — вспомогательная функция для парсинга float64.
-func parseFloat(value string) (float64, error) {
-	var f float64
-	_, err := fmt.Sscanf(value, "%f", &f)
-
-	return f, err
+	return transforms, nil
 }
