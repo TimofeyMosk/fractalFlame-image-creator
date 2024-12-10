@@ -37,7 +37,6 @@ func NewFractalImage(height, width int) *FractalImage {
 func (f FractalImage) GetHeight() int {
 	return f.height
 }
-
 func (f FractalImage) GetWidth() int {
 	return f.width
 }

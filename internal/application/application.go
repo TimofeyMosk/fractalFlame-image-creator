@@ -2,13 +2,11 @@ package application
 
 import (
 	"image/color"
-	"math/rand/v2"
 	"runtime"
 	"sync"
 
 	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/domain"
 	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/domain/transformations/lineartransformation"
-	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/domain/transformations/nonlineartransformations"
 )
 
 type NonLinearTransoformation interface {
@@ -78,114 +76,23 @@ func (f *FractalFlameImageGenerator) Start() *domain.FractalImage {
 	return f.fractal
 }
 
-func initNoLinTransoformation(nonlinConfig []NonLinearTransformConfig, height, width int) []NonLinTransWithProbability {
-	arr := []NonLinTransWithProbability{}
-
-	for i := range nonlinConfig {
-		switch nonlinConfig[i].Name {
-		case "heart":
-			lastP := 0.0
-			if len(arr) != 0 {
-				lastP = arr[len(arr)-1].Probability
-			}
-
-			arr = append(arr, NonLinTransWithProbability{
-				Transformation: nonlineartransformations.Heart{ScaleX: 0.5, ScaleY: 0.3, ShiftUpY: 0.25},
-				Probability:    nonlinConfig[i].Probability + lastP})
-		case "sinusoidal":
-			lastP := 0.0
-			if len(arr) != 0 {
-				lastP = arr[len(arr)-1].Probability
-			}
-
-			arr = append(arr, NonLinTransWithProbability{
-				Transformation: nonlineartransformations.Sinusoidal{Width: width, Height: height},
-				Probability:    nonlinConfig[i].Probability + lastP})
-		case "polar":
-			lastP := 0.0
-			if len(arr) != 0 {
-				lastP = arr[len(arr)-1].Probability
-			}
-
-			arr = append(arr, NonLinTransWithProbability{
-				Transformation: nonlineartransformations.Polar{Width: width, Height: height},
-				Probability:    nonlinConfig[i].Probability + lastP})
-		case "spherical":
-			lastP := 0.0
-			if len(arr) != 0 {
-				lastP = arr[len(arr)-1].Probability
-			}
-
-			arr = append(arr, NonLinTransWithProbability{
-				Transformation: nonlineartransformations.Spherical{},
-				Probability:    nonlinConfig[i].Probability + lastP})
-		case "disk":
-			lastP := 0.0
-			if len(arr) != 0 {
-				lastP = arr[len(arr)-1].Probability
-			}
-
-			arr = append(arr, NonLinTransWithProbability{
-				Transformation: nonlineartransformations.Disk{},
-				Probability:    nonlinConfig[i].Probability + lastP})
-		case "swirl":
-			lastP := 0.0
-			if len(arr) != 0 {
-				lastP = arr[len(arr)-1].Probability
-			}
-
-			arr = append(arr, NonLinTransWithProbability{
-				Transformation: nonlineartransformations.Swirl{},
-				Probability:    nonlinConfig[i].Probability + lastP})
-		case "horseshoe":
-			lastP := 0.0
-			if len(arr) != 0 {
-				lastP = arr[len(arr)-1].Probability
-			}
-
-			arr = append(arr, NonLinTransWithProbability{
-				Transformation: nonlineartransformations.Horseshoe{},
-				Probability:    nonlinConfig[i].Probability + lastP})
-		case "handkerchief":
-			lastP := 0.0
-			if len(arr) != 0 {
-				lastP = arr[len(arr)-1].Probability
-			}
-
-			arr = append(arr, NonLinTransWithProbability{
-				Transformation: nonlineartransformations.Handkerchief{},
-				Probability:    nonlinConfig[i].Probability + lastP})
-		}
-	}
-
-	if len(arr) != 0 && arr[len(arr)-1].Probability != 1.0 {
-		arr[len(arr)-1].Probability = 1.0
-	}
-
-	return arr
-}
-
 func initLinTransform(countTr int) []LinearTransformation {
 	curCount := 0
 	result := make([]LinearTransformation, 0, countTr)
 
 	for curCount < countTr {
-		a := createCoefficient()
-		b := createCoefficient()
-		c := createCoefficient()
-		d := createCoefficient()
-		e := createCoefficient() * 1.7
-		f := createCoefficient() * 1.7
+		affineTrans := lineartransformation.NewAffine()
 
-		if (a*a+d*d < 1) && (b*b+e*e < 1) && (a*a+b*b+d*d+e*e < 1+(a*e-b*d)*(a*e-b*d)) {
+		if validAffine(affineTrans) {
 			red, green, blue := GenerateBrightColor()
-			col := color.RGBA{
+			affineTrans.Color = color.RGBA{
 				R: red,
 				G: green,
 				B: blue,
 				A: 255,
 			}
-			result = append(result, lineartransformation.Affine{A: a, B: b, C: c, D: d, E: e, F: f, Color: col})
+
+			result = append(result, affineTrans)
 			curCount++
 		}
 	}
@@ -193,12 +100,11 @@ func initLinTransform(countTr int) []LinearTransformation {
 	return result
 }
 
-func createCoefficient() float64 {
-	x := rand.Float64()
-
-	if rand.Int()%2 == 0 {
-		x *= -1
+func validAffine(t *lineartransformation.Affine) bool {
+	if (t.A*t.A+t.D*t.D < 1) && (t.B*t.B+t.E*t.E < 1) &&
+		(t.A*t.A+t.B*t.B+t.D*t.D+t.E*t.E < 1+(t.A*t.E-t.B*t.D)*(t.A*t.E-t.B*t.D)) {
+		return true
+	} else {
+		return false
 	}
-
-	return x
 }

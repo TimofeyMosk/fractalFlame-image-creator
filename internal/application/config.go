@@ -17,13 +17,13 @@ type NonLinearTransformConfig struct {
 
 // Config структура для хранения параметров приложения.
 type Config struct {
-	Height                    int    // Высота изображения
-	Width                     int    // Ширина изображения
-	Iterations                uint64 // Количество итераций
-	LinearTransformCount      int    // Количество линейных трансформаций
-	Symmetry                  bool   // Наличие симметрии
-	LogarithmicGamma          bool   // Логарифмическая гамма-коррекция
-	Gamma                     float64
+	Height                    int                        // Высота изображения
+	Width                     int                        // Ширина изображения
+	Iterations                uint64                     // Количество итераций
+	LinearTransformCount      int                        // Количество линейных трансформаций
+	Symmetry                  bool                       // Наличие симметрии
+	LogarithmicGamma          bool                       // Логарифмическая гамма-коррекция
+	Gamma                     float64                    // Параметр гамма для Логарифмической гамма-коррекции
 	ThreadCount               int                        // Количество потоков
 	StretchingCompressionCoef int                        // Коэффициент растяжения (и последующего сжатия) изображения
 	NonLinearTransforms       []NonLinearTransformConfig // Нелинейные преобразования с вероятностями
@@ -36,7 +36,6 @@ func ParseFlags() (*Config, error) {
 	height := flag.Int("height", 0, "Высота изображения (обязательно)")
 	width := flag.Int("width", 0, "Ширина изображения (обязательно)")
 	iterations := flag.Uint64("iter", 0, "Количество итераций (обязательно)")
-
 	// Необязательные параметры
 	linearTransformCount := flag.Int("linear-transform-count", 10, "Количество линейных трансформаций (по умолчанию 10)")
 	symmetry := flag.Bool("symmetry", false, "Включить симметрию")
@@ -44,12 +43,11 @@ func ParseFlags() (*Config, error) {
 	threadCount := flag.Int("threads", runtime.NumCPU(), "Количество потоков (по умолчанию все доступные)")
 	StretchingCompressionCoef := flag.Int("scc", 1, "Коэффициент расстяжения и последующего сжатия изображения(убирает шумы)")
 	filename := flag.String("filename", "fractal_image"+"_"+time.Now().Format("D_02_01_2006_T_15_04_05.png"), "Название файла при сохранении")
-	// Список нелинейных преобразований
 	nonLinearTransforms := flag.String("nonlinear-transforms",
 		"",
 		"Список нелинейных преобразований с вероятностями, формат: имя:вероятность,...")
-
 	gammaStr := flag.String("gamma", "2.2", "gamma factor float  value")
+
 	flag.Parse()
 
 	// Проверка обязательных параметров
@@ -104,28 +102,31 @@ func ParseFlags() (*Config, error) {
 			})
 		}
 	} else {
-		nameTransforms := []string{"disk", "handkerchief", "heart",
+		nameTransforms := []string{"bubble", "cosine", "cross", "diamond", "exponential", "eyefish",
+			"fisheye", "disk", "handkerchief", "heart", "hyperbolic", "spiral", "tangent",
 			"horseshoe", "polar", "sinusoidal", "spherical", "swirl"}
 		rand.Shuffle(len(nameTransforms), func(i, j int) {
 			nameTransforms[i], nameTransforms[j] = nameTransforms[j], nameTransforms[i]
 		})
-		countTr := 3
+
 		// Генерация случайных вероятностей, сумма которых равна 1
+		countTr := 3
 		probabilities := make([]float64, countTr)
 		total := 1.0
-		for i := 0; i < 2; i++ {
+
+		for i := 0; i < countTr-1; i++ {
 			probabilities[i] = rand.Float64() * total
 			total -= probabilities[i]
 		}
-		probabilities[2] = total
 
-		for i, _ := range nameTransforms {
+		probabilities[countTr-1] = total
+
+		for i := 0; i < countTr; i++ {
 			transforms = append(transforms, NonLinearTransformConfig{
 				Name:        nameTransforms[i],
 				Probability: probabilities[i],
 			})
 		}
-
 	}
 
 	return &Config{

@@ -11,38 +11,38 @@ import (
 func main() {
 	startApplication := time.Now()
 
-	//cfg, err := application.ParseFlags()
-	//if err != nil {
-	//	fmt.Errorf("Ошибка парсинга флагов: %w", err)
-	//	return
-	//}
-
-	//fmt.Printf("Конфигурация: %+v\n", cfg)
-
-	cfg := &application.Config{
-		Height:               1080,
-		Width:                1920,
-		Iterations:           100_000_000,
-		LinearTransformCount: 10,
-		Symmetry:             false,
-		LogarithmicGamma:     true,
-		ThreadCount:          8,
-		NonLinearTransforms: []application.NonLinearTransformConfig{
-			{Name: "sinusoidal", Probability: 0.2},
-			{Name: "polar", Probability: 0.2},
-			{Name: "spherical", Probability: 0.2},
-			//{Name: "disk", Probability: 0.3},
-			{Name: "heart", Probability: 0.4},
-		},
-		Gamma:                     2.2,
-		StretchingCompressionCoef: 3,
-		Filename:                  "Fractal.png",
+	cfg, err := application.ParseFlags()
+	if err != nil {
+		fmt.Errorf("Ошибка парсинга флагов: %w", err)
+		return
 	}
+
+	fmt.Printf("Конфигурация: %+v\n", cfg)
+
+	//cfg := &application.Config{
+	//	Height:               1080,
+	//	Width:                1920,
+	//	Iterations:           100_000_00,
+	//	LinearTransformCount: 10,
+	//	Symmetry:             false,
+	//	LogarithmicGamma:     false,
+	//	ThreadCount:          8,
+	//	NonLinearTransforms:  []application.NonLinearTransformConfig{
+	//		//{Name: "sinusoidal", Probability: 0.2},
+	//		//{Name: "polar", Probability: 0.3},
+	//		//{Name: "tangent", Probability: 1.0},
+	//		//{Name: "disk", Probability: 0.3},
+	//		//{Name: "heart", Probability: 0.4},
+	//	},
+	//	Gamma:                     2.2,
+	//	StretchingCompressionCoef: 1,
+	//	Filename:                  "Fractal.png",
+	//}
 
 	fractalGenerator := application.NewFractalFlameImageGenerator(cfg)
 	fractalImage := fractalGenerator.Start()
 
-	err := infrastructure.SaveImage(cfg.Filename, fractalImage)
+	err = infrastructure.SaveImage(cfg.Filename, fractalImage)
 	if err != nil {
 		fmt.Errorf("Don`t save fractal.png: %v", err)
 		return
@@ -50,7 +50,3 @@ func main() {
 
 	fmt.Println(time.Since(startApplication).Seconds())
 }
-
-// GenerateBrightColor генерирует яркий цвет
-// ./main -height=1080 -width=1920 -iterations=10000000 -linear-transform-count=10 -symmetry -log-gamma -threads=8 -nonlinear-transforms="Sinusoidal:0.2,Polar:0.3,Spherical:0.4"
-//./main -height=1080 -width=1920 -iter=500000000 -linear-transform-count=10 -symmetry -threads 8  -log-gamma -nonlinear-transforms="sinusoidal:0.1,polar:0.1,disk:0.4,Handkerchief: 0.4" -scc 5

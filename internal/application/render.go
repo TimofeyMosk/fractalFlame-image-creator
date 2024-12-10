@@ -91,6 +91,7 @@ func choiceTransform(arrTr []NonLinTransWithProbability) NonLinearTransoformatio
 	if len(arrTr) == 0 {
 		return nil
 	}
+
 	p := rand.Float64()
 	ch := 0
 

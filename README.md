@@ -66,7 +66,7 @@ gamma - 2.2 (сработает при наличии -log-gamma)
 
 ## Список доступных преобразований
 
-### Name nonlinear transformation: disk, handkerchief, heart, horseshoe, polar, sinusoidal, spherical, swirl
+### **Name nonlinear transformation**: disk, handkerchief, heart, horseshoe, polar, sinusoidal, spherical, swirl, bubble, cosine, cross, diamond, exponential, eyefish, fisheye, hyperbolic, spiral, tangent
 
 ## Пример
 

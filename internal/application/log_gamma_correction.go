@@ -6,7 +6,25 @@ import (
 	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/domain"
 )
 
-func LogGammaCorrection(img *domain.FractalImage, gamma float64) {
+func LogGammaCorrection(fractalImage *domain.FractalImage, gamma float64) {
+	maximum := initNormalAndGetMax(fractalImage)
+
+	for i := 0; i < fractalImage.GetHeight(); i++ {
+		for j := 0; j < fractalImage.GetWidth(); j++ {
+			fractalImage.Img[i][j].Normal /= maximum
+
+			r, g, b := float64(fractalImage.Img[i][j].Color.R)*math.Pow(fractalImage.Img[i][j].Normal, 1.0/gamma),
+				float64(fractalImage.Img[i][j].Color.G)*math.Pow(fractalImage.Img[i][j].Normal, 1.0/gamma),
+				float64(fractalImage.Img[i][j].Color.B)*math.Pow(fractalImage.Img[i][j].Normal, 1.0/gamma)
+
+			fractalImage.Img[i][j].Color.R = uint8(r)
+			fractalImage.Img[i][j].Color.G = uint8(g)
+			fractalImage.Img[i][j].Color.B = uint8(b)
+		}
+	}
+}
+
+func initNormalAndGetMax(img *domain.FractalImage) float64 {
 	maximum := 0.0
 
 	for i := 0; i < img.GetHeight(); i++ {
@@ -22,17 +40,5 @@ func LogGammaCorrection(img *domain.FractalImage, gamma float64) {
 		}
 	}
 
-	for i := 0; i < img.GetHeight(); i++ {
-		for j := 0; j < img.GetWidth(); j++ {
-			img.Img[i][j].Normal /= maximum
-
-			r, g, b := float64(img.Img[i][j].Color.R)*math.Pow(img.Img[i][j].Normal, 1.0/gamma),
-				float64(img.Img[i][j].Color.G)*math.Pow(img.Img[i][j].Normal, 1.0/gamma),
-				float64(img.Img[i][j].Color.B)*math.Pow(img.Img[i][j].Normal, 1.0/gamma)
-
-			img.Img[i][j].Color.R = uint8(r)
-			img.Img[i][j].Color.G = uint8(g)
-			img.Img[i][j].Color.B = uint8(b)
-		}
-	}
+	return maximum
 }

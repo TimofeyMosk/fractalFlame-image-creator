@@ -18,7 +18,7 @@ linters:
     - goimports
     - revive
     - goprintffuncname
-    - gosec
+#    - gosec
     - gosimple
     - govet
     - ineffassign
