@@ -25,6 +25,7 @@ func MultiThreadLogGamma(threads int, fractalImage *domain.FractalImage, gamma f
 	}
 
 	maximums <- initNormalAndGetMax((threads-1)*int(pixelByThread), fractalImage.GetHeight(), fractalImage)
+
 	wg.Wait()
 	close(maximums)
 
@@ -48,7 +49,6 @@ func MultiThreadLogGamma(threads int, fractalImage *domain.FractalImage, gamma f
 
 	LogGammaCorrection((threads-1)*int(pixelByThread), fractalImage.GetHeight(), fractalImage, maximum, gamma)
 	wg.Wait()
-
 }
 
 func LogGammaCorrection(startHeight, finishHeight int, fractalImage *domain.FractalImage, maximum, gamma float64) {
