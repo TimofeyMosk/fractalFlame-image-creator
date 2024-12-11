@@ -21,6 +21,7 @@ func NewAffine() *Affine {
 	return &Affine{A: a, B: b, C: c, D: d, E: e, F: f, Color: color.RGBA{0, 0, 0, 255}}
 }
 
+//nolint:gosec // No need to use cryptographic randomiser(it is slower)
 func createCoefficient() float64 {
 	x := rand.Float64()
 

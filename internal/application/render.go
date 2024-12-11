@@ -12,7 +12,7 @@ func Render(ffg *FractalFlameImageGenerator, iterations uint64) {
 
 	var i uint64
 	for i = 0; i < iterations; i++ {
-		linT := ffg.linTransf[rand.IntN(len(ffg.linTransf))]
+		linT := ffg.linTransf[rand.IntN(len(ffg.linTransf))] //nolint  // No need to use cryptographic randomiser(it is slower)
 		newX, newY := linT.Transform(x, y)
 		trans := choiceTransform(ffg.noLinTransf)
 
@@ -23,7 +23,7 @@ func Render(ffg *FractalFlameImageGenerator, iterations uint64) {
 		}
 
 		if ffg.symmetry {
-			if rand.Int()%2 == 0 {
+			if rand.Int()%2 == 0 { //nolint // No need to use cryptographic randomiser(it is slower)
 				x *= -1
 				y *= -1
 			}
@@ -39,9 +39,10 @@ func Render(ffg *FractalFlameImageGenerator, iterations uint64) {
 				if ffg.fractal.Img[imgY][imgX].Count != 0 {
 					original := ffg.fractal.Img[imgY][imgX].Color
 					transformationColor := linT.GetColor()
+					//nolint //When adding two uint8 and dividing by 2, no overflow is possible
 					ffg.fractal.Img[imgY][imgX].Color.R = uint8((uint16(original.R) + uint16(transformationColor.R) + 1) >> 1)
-					ffg.fractal.Img[imgY][imgX].Color.G = uint8((uint16(original.G) + uint16(transformationColor.G) + 1) >> 1)
-					ffg.fractal.Img[imgY][imgX].Color.B = uint8((uint16(original.B) + uint16(transformationColor.B) + 1) >> 1)
+					ffg.fractal.Img[imgY][imgX].Color.G = uint8((uint16(original.G) + uint16(transformationColor.G) + 1) >> 1) //nolint  // Same as above
+					ffg.fractal.Img[imgY][imgX].Color.B = uint8((uint16(original.B) + uint16(transformationColor.B) + 1) >> 1) //nolint  // Same as above
 					ffg.fractal.Img[imgY][imgX].Count++
 				} else {
 					transformationColor := linT.GetColor()
@@ -57,13 +58,13 @@ func Render(ffg *FractalFlameImageGenerator, iterations uint64) {
 }
 
 func initStartPoint() (x, y float64) {
-	x, y = rand.Float64(), rand.Float64()
+	x, y = rand.Float64(), rand.Float64() //nolint // No need to use cryptographic randomiser(it is slower)
 
-	if rand.Int()%2 == 0 {
+	if rand.Int()%2 == 0 { //nolint // No need to use cryptographic randomiser(it is slower)
 		x *= -1
 	}
 
-	if rand.Int()%2 == 0 {
+	if rand.Int()%2 == 0 { //nolint  // No need to use cryptographic randomiser(it is slower)
 		y *= -1
 	}
 
@@ -91,7 +92,7 @@ func choiceTransform(arrTr []NonLinTransWithProbability) NonLinearTransoformatio
 		return nil
 	}
 
-	p := rand.Float64()
+	p := rand.Float64() //nolint // No need to use cryptographic randomiser(it is slower)
 	ch := 0
 
 	for index := range arrTr {

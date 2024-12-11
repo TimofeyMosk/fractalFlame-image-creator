@@ -122,7 +122,7 @@ func ParseNonLinearTransformations(nonLinearTransforms *string) ([]domain.NonLin
 		total := 1.0
 
 		for i := 0; i < countTr-1; i++ {
-			probabilities[i] = rand.Float64() * total
+			probabilities[i] = rand.Float64() * total //nolint // No need to use cryptographic randomiser(it is slower)
 			total -= probabilities[i]
 		}
 

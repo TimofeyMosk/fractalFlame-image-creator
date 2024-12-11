@@ -54,11 +54,11 @@ func compressPartImage(heightStart, heightFinish, coef int, newFractal, fractal 
 					sumCount += fractal.Img[curY][curX].Count
 				}
 			}
-
+			//nolint // The square of a number cannot be a negative number (overflow is impossible).
 			avgRed := uint8(math.Sqrt(float64(sumSquareRed / uint(coef*coef))))
-			avgGreen := uint8(math.Sqrt(float64(sumSquareGreen / uint(coef*coef))))
-			avgBlue := uint8(math.Sqrt(float64(sumSquareBlue / uint(coef*coef))))
-			avgCount := sumCount / uint64(coef*coef)
+			avgGreen := uint8(math.Sqrt(float64(sumSquareGreen / uint(coef*coef)))) //nolint  // Same as above
+			avgBlue := uint8(math.Sqrt(float64(sumSquareBlue / uint(coef*coef))))   //nolint  // Same as above
+			avgCount := sumCount / uint64(coef*coef)                                //nolint  // Same as above
 
 			newFractal.Img[i][j].Color = color.RGBA{R: avgRed, G: avgGreen, B: avgBlue, A: 255}
 			newFractal.Img[i][j].Count = avgCount

@@ -50,8 +50,13 @@ func NewFractalFlameImageGenerator(cfg *domain.Config) *FractalFlameImageGenerat
 }
 
 func (f *FractalFlameImageGenerator) Start() *domain.FractalImage {
+	if f.threadCount < 1 {
+		f.threadCount = 1
+	}
+
 	runtime.GOMAXPROCS(f.threadCount)
-	iterationsByGorutine := f.iteration / uint64(f.threadCount)
+
+	iterationsByGorutine := f.iteration / uint64(f.threadCount) //nolint // threadCount always positive
 
 	wg := &sync.WaitGroup{}
 	for i := 0; i < f.threadCount; i++ {
