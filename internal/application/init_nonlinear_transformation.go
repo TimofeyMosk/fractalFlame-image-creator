@@ -1,9 +1,12 @@
 package application
 
-import "github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/domain/transformations/nonlineartransformations"
+import (
+	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/domain"
+	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/domain/transformations/nonlineartransformations"
+)
 
 //nolint:funlen // "I don't see how you can avoid such a large suite of cases in the programme"
-func initNoLinTransoformation(nonlinConfig []NonLinearTransformConfig, height, width int) []NonLinTransWithProbability {
+func initNoLinTransoformation(nonlinConfig []domain.NonLinearTransformConfig, height, width int) []NonLinTransWithProbability {
 	arr := []NonLinTransWithProbability{}
 
 	for i := range nonlinConfig {

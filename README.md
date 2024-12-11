@@ -27,7 +27,7 @@
 2. Соберите приложение:
 
     ```bash
-    go build -o program ./cmd/run
+    go build -o fractalFlameImageCreator ./cmd/run
     ```
 
 3. Запустите с помощью:
@@ -59,8 +59,8 @@ linear-transform-count = 10
 symmetry - false
 threads - Количество доступных логических ядер cpu
 scc - 1
-filename - "fractal_image_D_09_12_2024_T_01_42_59.png"
-nonlinear-transforms - Случайные три трансформации из доступных(вероятности у них тоже случайны)
+filename - "fractal_image_D_09_12_2024_T_01_42_59.png" (дата и время текущее)
+nonlinear-transforms - 4 Случайных трансформаций с случайными вероятностями
 -log-gamma - false
 gamma - 2.2 (сработает при наличии -log-gamma)
 
@@ -71,7 +71,8 @@ gamma - 2.2 (сработает при наличии -log-gamma)
 ## Пример
 
 ```bash
-./program -height=1080 -width=1920 -iter=500000000 -linear-transform-count=10 -symmetry -threads 8  -log-gamma -gamma 2.5 -nonlinear-transforms="sinusoidal:0.1,polar:0.1,disk:0.4,handkerchief: 0.4" -scc 5 -filename "Fractal.png"
+./fractalFlameImageCreator -height=1080 -width=1920 -iter=50000000 -linear-transform-count=10 -symmetry -threads 8  -log-gamma -gamma 2.5 -nonlinear-transforms="sinusoidal:0.1,polar:0.1,disk:0.4,handkerchief: 0.4" -scc 5 -filename "Fractal.png"
+./fractalFlameImageCreator  -height=1600 -width=2560 -iter=10000000   -log-gamma  scc=3
 ```
 
 В этом примере:
@@ -121,4 +122,7 @@ cpu: Apple M1: Указание конкретного CPU.
 
 При увеличении количества горутин производительность значительно растет до 8 потоков.
 После 8 потоков эффективность перестает увеличиваться, так как Apple M1 имеет 8 производительных ядер,
-и дополнительное увеличение потоков приводит к накладным расходам на управление.
+и дополнительное увеличение потоков приводит к накладным расходам на управление. 
+Тем не менее, было замечено, что иногда дополнительные горутины сверх числа физический ядер, 
+даёт прирост производительности, но очень небольшой, и далеко не всегда(зависит от того, насколько сумма преобразований зациклена,
+если сильно, то планировщик горутин находит ту, которая не заблокирована быстрее, уменьшая время прерывания).

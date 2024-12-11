@@ -7,31 +7,12 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/domain"
 )
 
-// NonLinearTransformConfig описывает нелинейное преобразование и вероятность его срабатывания.
-type NonLinearTransformConfig struct {
-	Name        string  // Название нелинейного преобразования
-	Probability float64 // Вероятность применения
-}
-
-// Config структура для хранения параметров приложения.
-type Config struct {
-	Height                    int                        // Высота изображения
-	Width                     int                        // Ширина изображения
-	Iterations                uint64                     // Количество итераций
-	LinearTransformCount      int                        // Количество линейных трансформаций
-	Symmetry                  bool                       // Наличие симметрии
-	LogarithmicGamma          bool                       // Логарифмическая гамма-коррекция
-	Gamma                     float64                    // Параметр гамма для Логарифмической гамма-коррекции
-	ThreadCount               int                        // Количество потоков
-	StretchingCompressionCoef int                        // Коэффициент растяжения (и последующего сжатия) изображения
-	NonLinearTransforms       []NonLinearTransformConfig // Нелинейные преобразования с вероятностями
-	Filename                  string
-}
-
 // ParseFlags парсит флаги из командной строки и возвращает Config.
-func ParseFlags() (*Config, error) {
+func ParseFlags() (*domain.Config, error) {
 	// Обязательные параметры
 	height := flag.Int("height", 0, "Высота изображения (обязательно)")
 	width := flag.Int("width", 0, "Ширина изображения (обязательно)")
@@ -59,17 +40,17 @@ func ParseFlags() (*Config, error) {
 	}
 
 	if *iterations <= 0 {
-		return nil, fmt.Errorf("параметр -iterations обязателен и должен быть больше 0")
+		return nil, fmt.Errorf("параметр -iter обязателен и должен быть больше 0")
 	}
 
 	// Проверка необязательных параметров
 	if *StretchingCompressionCoef <= 0 {
-		return nil, fmt.Errorf("параметр -StretchingCompressionCoef должен быть больше 0")
+		return nil, fmt.Errorf("параметр -scc должен быть больше 0")
 	}
 
 	gamma, err := parseFloat(*gammaStr)
 	if err != nil {
-		return nil, fmt.Errorf("параметр -StretchingCompressionCoef должен быть вещественным числом")
+		return nil, fmt.Errorf("параметр -gamma должен быть вещественным числом")
 	}
 
 	if *threadCount <= 0 {
@@ -80,16 +61,12 @@ func ParseFlags() (*Config, error) {
 		return nil, fmt.Errorf("параметр -filename не должен быть пуст")
 	}
 
-	if *StretchingCompressionCoef != 1 && *StretchingCompressionCoef > 100 {
-		return nil, fmt.Errorf("параметр -scc слишком велик, уменьшите его")
-	}
-
 	transforms, err := ParseNonLinearTransformations(nonLinearTransforms)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Config{
+	return &domain.Config{
 		Height:                    *height,
 		Width:                     *width,
 		Iterations:                *iterations,
@@ -111,8 +88,8 @@ func parseFloat(value string) (float64, error) {
 	return f, err
 }
 
-func ParseNonLinearTransformations(nonLinearTransforms *string) ([]NonLinearTransformConfig, error) {
-	var transforms []NonLinearTransformConfig
+func ParseNonLinearTransformations(nonLinearTransforms *string) ([]domain.NonLinearTransformConfig, error) {
+	var transforms []domain.NonLinearTransformConfig
 
 	if *nonLinearTransforms != "" {
 		for _, transform := range strings.Split(*nonLinearTransforms, ",") {
@@ -126,7 +103,7 @@ func ParseNonLinearTransformations(nonLinearTransforms *string) ([]NonLinearTran
 				return nil, fmt.Errorf("некорректная вероятность в преобразовании: %s", transform)
 			}
 
-			transforms = append(transforms, NonLinearTransformConfig{
+			transforms = append(transforms, domain.NonLinearTransformConfig{
 				Name:        strings.ToLower(parts[0]),
 				Probability: probability,
 			})
@@ -140,7 +117,7 @@ func ParseNonLinearTransformations(nonLinearTransforms *string) ([]NonLinearTran
 		})
 
 		// Генерация случайных вероятностей, сумма которых равна 1
-		countTr := 3
+		countTr := 4
 		probabilities := make([]float64, countTr)
 		total := 1.0
 
@@ -152,11 +129,21 @@ func ParseNonLinearTransformations(nonLinearTransforms *string) ([]NonLinearTran
 		probabilities[countTr-1] = total
 
 		for i := 0; i < countTr; i++ {
-			transforms = append(transforms, NonLinearTransformConfig{
+			transforms = append(transforms, domain.NonLinearTransformConfig{
 				Name:        nameTransforms[i],
 				Probability: probabilities[i],
 			})
 		}
+	}
+
+	sumP := 0.0
+
+	for _, transform := range transforms {
+		sumP += transform.Probability
+	}
+
+	if sumP > 1.01 {
+		return nil, fmt.Errorf("cумма вероятностей не может быть больше 1")
 	}
 
 	return transforms, nil

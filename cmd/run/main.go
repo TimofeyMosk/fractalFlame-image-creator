@@ -17,7 +17,7 @@ func main() {
 		return
 	}
 
-	fmt.Printf("Конфигурация: %+v\n", cfg)
+	fmt.Printf("Конфигурация: %s\n", cfg)
 
 	fractalGenerator := application.NewFractalFlameImageGenerator(cfg)
 	fractalImage := fractalGenerator.Start()
@@ -28,5 +28,5 @@ func main() {
 		return
 	}
 
-	fmt.Println(time.Since(startApplication).Seconds())
+	fmt.Printf("Generation time: %.3fs\n", time.Since(startApplication).Seconds())
 }

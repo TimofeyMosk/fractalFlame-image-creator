@@ -35,7 +35,7 @@ type FractalFlameImageGenerator struct {
 	threadCount               int
 }
 
-func NewFractalFlameImageGenerator(cfg *Config) *FractalFlameImageGenerator {
+func NewFractalFlameImageGenerator(cfg *domain.Config) *FractalFlameImageGenerator {
 	return &FractalFlameImageGenerator{
 		fractal:                   domain.NewFractalImage(cfg.Height*cfg.StretchingCompressionCoef, cfg.Width*cfg.StretchingCompressionCoef),
 		linTransf:                 initLinTransform(cfg.LinearTransformCount),
@@ -58,8 +58,8 @@ func (f *FractalFlameImageGenerator) Start() *domain.FractalImage {
 		wg.Add(1)
 
 		go func() {
+			defer wg.Done()
 			Render(f, iterationsByGorutine)
-			wg.Done()
 		}()
 	}
 
@@ -70,7 +70,7 @@ func (f *FractalFlameImageGenerator) Start() *domain.FractalImage {
 	}
 
 	if f.coefStretchingCompression > 1 {
-		f.fractal = CompressionFractalImage(f.coefStretchingCompression, f.fractal)
+		f.fractal = CompressionFractalImage(f.coefStretchingCompression, f.threadCount, f.fractal)
 	}
 
 	return f.fractal

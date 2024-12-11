@@ -1,7 +1,6 @@
 package application
 
 import (
-	rand2 "math/rand"
 	"math/rand/v2"
 
 	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/domain"
@@ -24,7 +23,7 @@ func Render(ffg *FractalFlameImageGenerator, iterations uint64) {
 		}
 
 		if ffg.symmetry {
-			if rand2.Int()%2 == 0 {
+			if rand.Int()%2 == 0 {
 				x *= -1
 				y *= -1
 			}
