@@ -2,14 +2,57 @@ package application
 
 import (
 	"math"
+	"sync"
 
 	"github.com/es-debug/backend_academy_2024_project_4-go-TimofeyMosk/internal/domain"
 )
 
-func LogGammaCorrection(fractalImage *domain.FractalImage, gamma float64) {
-	maximum := initNormalAndGetMax(fractalImage)
+func MultiThreadLogGamma(threads int, fractalImage *domain.FractalImage, gamma float64) {
+	threads = min(threads, fractalImage.GetHeight())
+	pixelByThread := math.Floor(float64(fractalImage.GetHeight()) / float64(threads))
+	wg := sync.WaitGroup{}
+	maximums := make(chan float64, threads)
 
-	for i := 0; i < fractalImage.GetHeight(); i++ {
+	for i := 0; i < threads-1; i++ {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+
+			startHeight, finishHeight := i*int(pixelByThread), i*int(pixelByThread)+int(pixelByThread)
+			maximums <- initNormalAndGetMax(startHeight, finishHeight, fractalImage)
+		}()
+	}
+
+	maximums <- initNormalAndGetMax((threads-1)*int(pixelByThread), fractalImage.GetHeight(), fractalImage)
+	wg.Wait()
+	close(maximums)
+
+	maximum := 0.0
+	for value := range maximums {
+		if value > maximum {
+			maximum = value
+		}
+	}
+
+	for i := 0; i < threads-1; i++ {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+
+			startHeight, finishHeight := i*int(pixelByThread), i*int(pixelByThread)+int(pixelByThread)
+			LogGammaCorrection(startHeight, finishHeight, fractalImage, maximum, gamma)
+		}()
+	}
+
+	LogGammaCorrection((threads-1)*int(pixelByThread), fractalImage.GetHeight(), fractalImage, maximum, gamma)
+	wg.Wait()
+
+}
+
+func LogGammaCorrection(startHeight, finishHeight int, fractalImage *domain.FractalImage, maximum, gamma float64) {
+	for i := startHeight; i < finishHeight; i++ {
 		for j := 0; j < fractalImage.GetWidth(); j++ {
 			fractalImage.Img[i][j].Normal /= maximum
 
@@ -24,10 +67,10 @@ func LogGammaCorrection(fractalImage *domain.FractalImage, gamma float64) {
 	}
 }
 
-func initNormalAndGetMax(img *domain.FractalImage) float64 {
+func initNormalAndGetMax(startHeight, finishHeight int, img *domain.FractalImage) float64 {
 	maximum := 0.0
 
-	for i := 0; i < img.GetHeight(); i++ {
+	for i := startHeight; i < finishHeight; i++ {
 		for j := 0; j < img.GetWidth(); j++ {
 			if img.Img[i][j].Count == 0 {
 				continue

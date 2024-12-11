@@ -12,22 +12,22 @@ import (
 func BenchmarkFractalFlameImageGenerator_Start(b *testing.B) {
 	// Конфигурация для генератора фракталов
 	cfg := &domain.Config{
-		Height:               1600,
-		Width:                2560,
-		LinearTransformCount: 10,
+		Height:               1080,
+		Width:                1920,
+		LinearTransformCount: 100,
 		NonLinearTransforms: []domain.NonLinearTransformConfig{
-			{Name: "sinusoidal", Probability: 0.2},
+			{Name: "sinusoidal", Probability: 0.3},
 			{Name: "polar", Probability: 0.1},
-			{Name: "spherical", Probability: 0.2},
+			{Name: "spherical", Probability: 0.1},
 			{Name: "disk", Probability: 0.1},
 			{Name: "heart", Probability: 0.4},
 		},
-		Iterations:                1000000,
+		Iterations:                2000000,
 		Gamma:                     2.2,
-		StretchingCompressionCoef: 1,
+		StretchingCompressionCoef: 4,
 		ThreadCount:               1, // Это будет изменяться
 		Symmetry:                  false,
-		LogarithmicGamma:          false,
+		LogarithmicGamma:          true,
 	}
 
 	threadCounts := []int{1, 2, 4, 8, 12, 16, 64, 128, 1280} // Разные значения горутин для тестирования

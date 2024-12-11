@@ -14,8 +14,8 @@ import (
 func CompressionFractalImage(coef, threads int, fractalImg *domain.FractalImage) *domain.FractalImage {
 	newHeight, newWidth := fractalImg.GetHeight()/coef, fractalImg.GetWidth()/coef
 	newFractalImg := domain.NewFractalImage(newHeight, newWidth)
-
-	pixelByThread := math.Ceil(float64(newHeight) / float64(threads))
+	threads = min(threads, newHeight)
+	pixelByThread := math.Floor(float64(newHeight) / float64(threads))
 	wg := sync.WaitGroup{}
 
 	for i := 0; i < threads-1; i++ {
@@ -25,17 +25,17 @@ func CompressionFractalImage(coef, threads int, fractalImg *domain.FractalImage)
 			defer wg.Done()
 
 			startHeight, finishHeight := i*int(pixelByThread), i*int(pixelByThread)+int(pixelByThread)
-			CompressPartImage(startHeight, finishHeight, coef, newFractalImg, fractalImg)
+			compressPartImage(startHeight, finishHeight, coef, newFractalImg, fractalImg)
 		}()
 	}
 
-	CompressPartImage((threads-1)*int(pixelByThread), newFractalImg.GetHeight(), coef, newFractalImg, fractalImg)
+	compressPartImage((threads-1)*int(pixelByThread), newFractalImg.GetHeight(), coef, newFractalImg, fractalImg)
 	wg.Wait()
 
 	return newFractalImg
 }
 
-func CompressPartImage(heightStart, heightFinish, coef int, newFractal, fractal *domain.FractalImage) {
+func compressPartImage(heightStart, heightFinish, coef int, newFractal, fractal *domain.FractalImage) {
 	for i := heightStart; i < heightFinish; i++ {
 		for j := 0; j < newFractal.GetWidth(); j++ {
 			var (

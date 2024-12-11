@@ -66,7 +66,7 @@ func (f *FractalFlameImageGenerator) Start() *domain.FractalImage {
 	wg.Wait()
 
 	if f.logGammaCorrection {
-		LogGammaCorrection(f.fractal, f.gamma)
+		MultiThreadLogGamma(f.threadCount, f.fractal, f.gamma)
 	}
 
 	if f.coefStretchingCompression > 1 {
